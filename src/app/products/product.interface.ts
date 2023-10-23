@@ -1,3 +1,8 @@
+export interface ProductResponse {
+  data: {
+    products: Product[]
+  }
+}
 export interface Product {
   /** Available count */
   count: number;
@@ -5,6 +10,7 @@ export interface Product {
   id: string;
   price: number;
   title: string;
+  image: string;
 }
 
 export interface ProductCheckout extends Product {
