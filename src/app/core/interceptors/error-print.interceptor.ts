@@ -4,6 +4,7 @@ import {
   HttpHandler,
   HttpInterceptor,
   HttpRequest,
+  HttpResponse,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NotificationService } from '../notification.service';
@@ -19,13 +20,21 @@ export class ErrorPrintInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
       tap({
-        error: () => {
-          const url = new URL(request.url);
+        error: (event: unknown) => {
+          const response = event as HttpResponse<unknown> & {
+            error: { message: string };
+          };
 
-          this.notificationService.showError(
-            `Request to "${url.pathname}" failed. Check the console for the details`,
-            0
-          );
+          if (response.status === 401 || response.status === 403) {
+            this.notificationService.showError(response.error.message, 0);
+          } else {
+            const url = new URL(request.url);
+
+            this.notificationService.showError(
+              `Request to "${url.pathname}" failed. Check the console for the details`,
+              0
+            );
+          }
         },
       })
     );
